@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0;url=/AI-Content-Wise/">
+  <title>重新導向中 - 文萃智析</title>
+  <script>
+    // 單頁應用路由 - GitHub Pages 專用
+    var pathSegments = window.location.pathname.split('/');
+    var repoName = 'AI-Content-Wise';
+    var redirectPath = window.location.origin;
+    
+    // 檢查是否在 GitHub Pages 上
+    if (pathSegments.includes(repoName)) {
+      redirectPath += '/' + repoName;
+    }
+    
+    redirectPath += '/?redirect=' + encodeURIComponent(window.location.pathname);
+    window.location.replace(redirectPath);
+  </script>
+</head>
+<body>
+  <p>如果您沒有被自動重定向，請<a href="/AI-Content-Wise/">點擊這裡</a>。</p>
+</body>
+</html> 
