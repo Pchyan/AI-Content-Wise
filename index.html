@@ -2,7 +2,7 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="文萃智析 - 利用 AI 技術幫助分析和總結文章內容" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; font-src 'self' https: data:; img-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:;">
@@ -45,7 +45,8 @@
           // 避免過多錯誤累積
           const errCount = sessionStorage.getItem('resourceErrorCount') || 0;
           if (parseInt(errCount) > 5) {
-            window.location.href = './error.html';
+            // 相對路徑修正
+            window.location.href = 'error.html';
           } else {
             sessionStorage.setItem('resourceErrorCount', parseInt(errCount) + 1);
           }
@@ -55,7 +56,12 @@
       // 註冊服務工作線程
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('./service-worker.js')
+          // 注意: 在 GitHub Pages 上，service-worker.js 需要在構建過程中複製到 dist 目錄
+          const swUrl = window.location.pathname.includes('/AI-Content-Wise/') 
+            ? '/AI-Content-Wise/service-worker.js'
+            : '/service-worker.js';
+            
+          navigator.serviceWorker.register(swUrl)
             .then(function(registration) {
               console.log('ServiceWorker 註冊成功:', registration.scope);
             })
@@ -74,6 +80,7 @@
         <p>載入中...</p>
       </div>
     </div>
-    <script type="module" src="./src/main.tsx"></script>
+    <!-- 使用相對路徑由 Vite 處理 -->
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

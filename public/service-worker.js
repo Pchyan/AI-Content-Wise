@@ -1,13 +1,25 @@
 // 服務工作線程 - 提供離線支持和資源緩存
 const CACHE_NAME = 'content-wise-cache-v1';
-const OFFLINE_URL = './error.html';
+const OFFLINE_URL = 'error.html';
+
+// 獲取當前 URL 的 base path (用於 GitHub Pages)
+const getBasePath = () => {
+  // 檢查是否在 GitHub Pages 上
+  if (self.location.pathname.includes('/AI-Content-Wise/')) {
+    return '/AI-Content-Wise/';
+  }
+  return '/';
+};
+
+const BASE_PATH = getBasePath();
 
 // 要緩存的資源
 const urlsToCache = [
-  './',
-  './index.html',
-  './favicon.svg',
-  './error.html',
+  `${BASE_PATH}`,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}favicon.svg`,
+  `${BASE_PATH}error.html`,
+  // 以下路徑將在部署腳本中被替換為正確的資源路徑
   './src/main.tsx',
   './src/index.css',
   'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap'

@@ -7,7 +7,7 @@ const Layout = () => {
       <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link to="/" className="text-xl font-bold flex items-center">
-            <img src="./favicon.svg" alt="Logo" className="w-6 h-6 mr-2" />
+            <img src="favicon.svg" alt="Logo" className="w-6 h-6 mr-2" />
             文萃智析
           </Link>
           <nav className="flex space-x-4">

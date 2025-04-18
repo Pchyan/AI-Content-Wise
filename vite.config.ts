@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => {
   // 載入環境變數
   const env = loadEnv(mode, process.cwd())
   
+  // 設定正確的 GitHub Pages 部署基礎路徑
+  const base = '/AI-Content-Wise/';
+  
   return {
     plugins: [
       react({
@@ -19,10 +22,11 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
-    // 使用環境變數中的 base URL 或預設值
-    base: './',
+    // 使用 GitHub Pages 路徑
+    base: base,
     // 關閉部分警告訊息
     build: {
+      outDir: 'dist',
       sourcemap: true,
       rollupOptions: {
         onwarn(warning, warn) {
