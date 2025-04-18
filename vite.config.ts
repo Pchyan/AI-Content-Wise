@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     // 使用環境變數中的 base URL 或預設值
-    base: env.VITE_BASE_URL || './',
+    base: './',
     // 關閉部分警告訊息
     build: {
       sourcemap: true,

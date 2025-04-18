@@ -2,14 +2,78 @@
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="文萃智析 - 利用 AI 技術幫助分析和總結文章內容" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; font-src 'self' https: data:; img-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:;">
     <title>文萃智析 (ContentWise)</title>
+    <!-- 預載入字體，避免 FOUT (閃爍未樣式化文本) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+      /* 添加簡單的載入動畫 */
+      .app-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Noto Sans TC', sans-serif;
+        color: #3B82F6;
+      }
+      .loading-spinner {
+        border: 4px solid rgba(59, 130, 246, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #3B82F6;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+    <!-- 錯誤處理 -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
+          console.error('資源載入失敗:', e.target.src || e.target.href);
+          
+          // 避免過多錯誤累積
+          const errCount = sessionStorage.getItem('resourceErrorCount') || 0;
+          if (parseInt(errCount) > 5) {
+            window.location.href = './error.html';
+          } else {
+            sessionStorage.setItem('resourceErrorCount', parseInt(errCount) + 1);
+          }
+        }
+      }, true);
+
+      // 註冊服務工作線程
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('./service-worker.js')
+            .then(function(registration) {
+              console.log('ServiceWorker 註冊成功:', registration.scope);
+            })
+            .catch(function(error) {
+              console.log('ServiceWorker 註冊失敗:', error);
+            });
+        });
+      }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root">
+      <!-- 載入中的顯示 -->
+      <div class="app-loading">
+        <div class="loading-spinner"></div>
+        <p>載入中...</p>
+      </div>
+    </div>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>

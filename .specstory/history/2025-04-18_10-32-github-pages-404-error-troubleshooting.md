@@ -2219,6 +2219,286 @@ _**Assistant**_
 
 ---
 
+我會根據您的要求對「文萃智析」應用進行更新，包括更新 Gemini 模型版本、設定預設輸出為台灣繁體中文，以及添加輸出語言設定功能。
+
+## 1. 首先更新 App.tsx 中的 UserSettings 介面，增加語言設定：
+
+---
+
+```diff
+    apiKey: string;
+    model: string;
++   language: string;
+  }
+  
+    const [settings, setSettings] = useState<UserSettings>({ 
+      apiKey: '',
+-     model: 'gemini-1.5-pro'
++     model: 'gemini-2.0-flash',
++     language: 'zh-TW'
+    })
+    const [isLoading, setIsLoading] = useState(true)
+```
+
+---
+
+## 2. 更新 Settings.tsx 頁面，新增語言選擇選項：
+
+---
+
+```diff
+  import { useState, ChangeEvent, FormEvent } from 'react'
+  import { UserSettings } from '../App'
+- import { FaEye, FaEyeSlash, FaQuestionCircle } from 'react-icons/fa'
++ import { FaEye, FaEyeSlash, FaQuestionCircle, FaLanguage } from 'react-icons/fa'
+  
+  interface SettingsProps {
+  const Settings = ({ settings, updateSettings }: SettingsProps) => {
+    const [apiKey, setApiKey] = useState(settings.apiKey || '')
+-   const [model, setModel] = useState(settings.model || 'gemini-1.5-pro')
++   const [model, setModel] = useState(settings.model || 'gemini-2.0-flash')
++   const [language, setLanguage] = useState(settings.language || 'zh-TW')
+    const [showApiKey, setShowApiKey] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+      setModel(e.target.value)
+    }
++ 
++   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
++     setLanguage(e.target.value)
++   }
+  
+    const toggleShowApiKey = () => {
+  
+      try {
+-       const success = await updateSettings({ apiKey, model })
++       const success = await updateSettings({ apiKey, model, language })
+        
+        if (success) {
+                className="input w-full"
+              >
+-               <option value="gemini-1.5-pro">Gemini 1.5 Pro (最新版，推薦)</option>
+-               <option value="gemini-1.5-flash">Gemini 1.5 Flash (速度較快)</option>
+-               <option value="gemini-pro">Gemini Pro (舊版)</option>
++               <option value="gemini-2.0-flash">Gemini 2.0 Flash (推薦)</option>
++               <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (更快速)</option>
++               <option value="gemini-1.5-pro-002">Gemini 1.5 Pro 002 (豐富功能)</option>
++               <option value="gemini-1.5-flash-002">Gemini 1.5 Flash 002 (較輕量)</option>
++             </select>
++             <p className="mt-1 text-sm text-gray-500">
++               根據 Google 文件，推薦使用 Gemini 2.0 Flash 作為最新穩定版本。
++             </p>
++           </div>
++ 
++           <div className="mb-6">
++             <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
++               <div className="flex items-center">
++                 <FaLanguage className="mr-1" /> 分析結果語言
++               </div>
++             </label>
++             <select
++               id="language"
++               value={language}
++               onChange={handleLanguageChange}
++               className="input w-full"
++             >
++               <option value="zh-TW">繁體中文 (台灣)</option>
++               <option value="zh-CN">簡體中文</option>
++               <option value="en">英文 (English)</option>
++               <option value="ja">日文 (日本語)</option>
++               <option value="ko">韓文 (한국어)</option>
+              </select>
+              <p className="mt-1 text-sm text-gray-500">
+-               選擇不同的模型版本可能會影響分析結果的品質和響應速度。
++               選擇 AI 分析後產生的文章重點與感想所使用的語言。
+              </p>
+            </div>
+```
+
+---
+
+## 3. 更新 Home.tsx 頁面，修改 API 呼叫以支援語言設定並使用最新的模型：
+
+---
+
+```diff
+      
+      try {
++       // 根據用戶設定的語言，準備對應的語言提示
++       const languageMap: Record<string, string> = {
++         'zh-TW': '台灣繁體中文',
++         'zh-CN': '簡體中文',
++         'en': 'English',
++         'ja': '日本語',
++         'ko': '한국어'
++       }
++       
++       const outputLanguage = languageMap[settings.language] || '台灣繁體中文'
++       
+        const prompt = `
+        請分析以下文章內容，並提供兩個部分：
+        ${content}
+        
+-       回應格式應為 JSON，包含 summary 和 thoughts 兩個屬性：
++       請使用 ${outputLanguage} 回覆，並按照以下 JSON 格式輸出：
+        {
+          "summary": "文章重點總結...",
+```
+
+---
+
+## 4. 更新首頁顯示，增加語言提示：
+
+---
+
+```diff
+        {result && (
+          <div className="card mb-6">
+-           <h2 className="mb-4">分析結果</h2>
++           <h2 className="mb-4">分析結果 
++             <span className="text-sm font-normal text-gray-500 ml-2">
++               {settings.language === 'zh-TW' ? '(繁體中文)' : 
++                settings.language === 'zh-CN' ? '(簡體中文)' : 
++                settings.language === 'en' ? '(English)' : 
++                settings.language === 'ja' ? '(日本語)' : 
++                settings.language === 'ko' ? '(한국어)' : ''}
++             </span>
++           </h2>
+            
+            <div className="mb-6">
+              </div>
+            </div>
++           
++           <div className="mt-4 text-sm text-gray-500 text-right">
++             <p>如需更改輸出語言，請前往<Link to="/settings" className="text-primary hover:underline">設定頁面</Link>調整</p>
++           </div>
+          </div>
+        )}
+```
+
+---
+
+## 5. 更新首頁的介紹文本，包含多語言功能：
+
+---
+
+```diff
+        <div className="card mb-6">
+          <h1 className="mb-4 text-center">文萃智析</h1>
+-         <p className="text-gray-600 text-center mb-6">利用 AI 技術分析文章內容，提取重點並生成有洞見的感想</p>
++         <p className="text-gray-600 text-center mb-6">
++           利用 Google Gemini AI 技術分析文章內容，提取重點並生成有洞見的感想，
++           支援多種語言輸出，預設使用台灣繁體中文
++         </p>
+  
+          {!settings.apiKey && (
+```
+
+---
+
+## 6. 更新 README.md 文件，包含最新的功能說明：
+
+---
+
+```diff
+    - 總結重點：生成一段簡短的文字，概述文章的核心內容
+    - 感想生成：根據文章內容，生成一段對文章的感想或評論
++ - **多語言支援**：
++   - 預設使用台灣繁體中文輸出分析結果
++   - 支援切換至簡體中文、英文、日文、韓文
+  
+  ## 技術特點
+  
+  - 使用 React 和 TypeScript 開發
+  - 採用 Tailwind CSS 進行樣式設計
+- - 用戶資料（API Key）存儲在本地 localStorage 中，保障隱私
+- - 使用 Google Gemini API 進行文章分析
++ - 用戶資料（API Key、語言設定）儲存在本地 localStorage 中，保障隱私
++ - 使用最新的 Google Gemini 2.0 API 進行文章分析
+  - 支援 PWA，可安裝到桌面
+  
+  1. 在 [Google AI Studio](https://makersuite.google.com/app/apikey) 建立 Gemini API Key
+  2. 在網站的設定頁面輸入你的 API Key
+- 3. 開始分析文章！
++ 3. 選擇你偏好的模型版本和輸出語言
++ 4. 開始分析文章！
+  
+  ## 本地開發
+  此專案已設定為可以直接部署到 GitHub Pages。
+  從 dist 資料夾部署靜態檔案到任何靜態網站托管服務。
++ 
++ ```bash
++ npm run deploy
++ ```
+  
+  ## 隱私政策
+  - 所有的文章分析都直接使用你的 API Key 經由你的瀏覽器與 Google API 通訊，不經過第三方伺服器
+  - 我們不會收集或儲存你的文章內容
++ 
++ ## 更新日誌
++ 
++ ### 2024-11-18
++ - 更新至 Google Gemini 2.0 模型
++ - 新增多語言輸出支援（台灣繁體中文、簡體中文、英文、日文、韓文）
++ - 優化使用者界面
+  
+```
+
+---
+
+## 完成！以下是我完成的所有更新：
+
+1. **更新了 Google Gemini 模型版本**：
+   - 將預設模型從 gemini-1.5-pro 更新到 gemini-2.0-flash
+   - 添加了最新的 Gemini 2.0 模型選項
+   - 根據 Google 的官方文檔，更新了模型推薦與說明
+
+2. **新增了多語言輸出功能**：
+   - 預設使用台灣繁體中文輸出分析結果
+   - 在設定頁面添加了語言選擇功能
+   - 支援繁體中文、簡體中文、英文、日文、韓文
+
+3. **改進了使用者介面**：
+   - 在分析結果頁面顯示當前使用的語言
+   - 提供前往設定頁面調整語言的快速連結
+   - 更新了首頁介紹文字，說明多語言功能
+
+4. **更新了專案文檔**：
+   - 在 README.md 中添加了多語言功能說明
+   - 更新了技術特點與使用指南
+   - 添加了更新日誌
+
+這些更新讓您的「文萃智析」應用程式能夠使用最新的 Google Gemini 模型，並增加了對多語言輸出的支援，大大提升了應用程式的實用性和國際化程度。用戶現在可以根據自己的偏好選擇分析結果顯示的語言，擴大了應用的受眾範圍。
+
+---
+
+_**User**_
+
+main.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()
+content.js:202 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+sharebx.js:8 2
+sharebx.js:20 2
+css.js:38 cssjs
+css.js:51 enabled.
+sharebx.js:39 177759
+sharebx.js:88 177759
+sharebx.js:93 5513487799
+gator.volces.com/list:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+
+
+---
+
+_**Assistant**_
+
+
+
+---
+
 
 
 ---
