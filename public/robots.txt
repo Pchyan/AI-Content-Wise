@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 禁止訪問特定 API 相關路徑
+Disallow: /api/
+Disallow: /*.json$
+
+# 禁止抓取機器人訪問敏感資源
+Disallow: /settings 
