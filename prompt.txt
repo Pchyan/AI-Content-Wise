@@ -25,4 +25,4 @@
 
 5. 程式名稱：文萃智析 (ContentWise)
 
-6.程式可以部署到 vercel 使用
+6.程式可以部署到 github pages 使用
